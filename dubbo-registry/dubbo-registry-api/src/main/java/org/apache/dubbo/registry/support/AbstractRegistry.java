@@ -54,7 +54,7 @@ import java.util.concurrent.atomic.AtomicReference;
  *
  */
 public abstract class AbstractRegistry implements Registry {
-
+    // URL地址分隔符，用于文件缓存中，服务提供者URL分隔
     // URL address separator, used in file cache, service provider URL separation
     private static final char URL_SEPARATOR = ' ';
     // URL address separated regular expression for parsing the service provider URL list in the file cache
@@ -69,8 +69,17 @@ public abstract class AbstractRegistry implements Registry {
     private final boolean syncSaveFile;
     private final AtomicLong lastCacheChanged = new AtomicLong();
     private final Set<URL> registered = new ConcurrentHashSet<URL>();
+    //订阅 URL 的监听器集合
     private final ConcurrentMap<URL, Set<NotifyListener>> subscribed = new ConcurrentHashMap<URL, Set<NotifyListener>>();
+    /**
+     * 被通知的 URL 集合
+     *
+     * key1：消费者的 URL ，例如消费者的 URL ，和 {@link #subscribed} 的键一致
+     * key2：分类，例如：providers、consumers、routes、configurators。【实际无 consumers ，因为消费者不会去订阅另外的消费者的列表】
+     *            在 {@link Constants} 中，以 "_CATEGORY" 结尾
+     */
     private final ConcurrentMap<URL, Map<String, List<URL>>> notified = new ConcurrentHashMap<URL, Map<String, List<URL>>>();
+    //注册中心url
     private URL registryUrl;
     // Local disk cache file
     private File file;
