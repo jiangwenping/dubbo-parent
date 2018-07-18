@@ -49,11 +49,13 @@ public class ZookeeperRegistry extends FailbackRegistry {
     private final static String DEFAULT_ROOT = "dubbo";
 
     private final String root;
-
+    /**
+     * Service 全名接口集合
+     */
     private final Set<String> anyServices = new ConcurrentHashSet<String>();
-
+    //监听器集合
     private final ConcurrentMap<URL, ConcurrentMap<NotifyListener, ChildListener>> zkListeners = new ConcurrentHashMap<URL, ConcurrentMap<NotifyListener, ChildListener>>();
-
+    //zk客户端
     private final ZookeeperClient zkClient;
 
     public ZookeeperRegistry(URL url, ZookeeperTransporter zookeeperTransporter) {
@@ -241,7 +243,14 @@ public class ZookeeperRegistry extends FailbackRegistry {
     private String toRootPath() {
         return root;
     }
-
+    /**
+     * 获得服务路径
+     *
+     * Root + Type
+     *
+     * @param url URL
+     * @return 服务路径
+     */
     private String toServicePath(URL url) {
         String name = url.getServiceInterface();
         if (Constants.ANY_VALUE.equals(name)) {
@@ -264,11 +273,27 @@ public class ZookeeperRegistry extends FailbackRegistry {
         }
         return paths;
     }
-
+    /**
+     * 获得分类路径
+     *
+     * Root + Service + Type
+     *
+     * @param url URL
+     * @return 分类路径
+     */
     private String toCategoryPath(URL url) {
         return toServicePath(url) + Constants.PATH_SEPARATOR + url.getParameter(Constants.CATEGORY_KEY, Constants.DEFAULT_CATEGORY);
     }
-
+    /**
+     * 获得 URL 的路径
+     *
+     * Root + Service + Type + URL
+     *
+     * 被 {@link #doRegister(URL)} 和 {@link #doUnregister(URL)} 调用
+     *
+     * @param url URL
+     * @return 路径
+     */
     private String toUrlPath(URL url) {
         return toCategoryPath(url) + Constants.PATH_SEPARATOR + URL.encode(url.toFullString());
     }
